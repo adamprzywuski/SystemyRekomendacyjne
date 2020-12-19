@@ -13,12 +13,12 @@ def print_hi(name):
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
 
-    pk=p.Partner_data_reader("0B569D05041C6C038C28D92E9C3C2220.csv")
-    print(pk.how_many_dates)
+    #pk=p.Partner_data_reader("C0F515F0A2D0A5D9F854008BA76EB537.csv")
+    #print(pk.how_many_dates)
     #print(pk.next_day(1))
     #optimizer=op.optimizer("0A2CEC84A65760AD90AA751C1C3DD861.csv",12.5,2)
     #print(optimizer.excluded_products)
-    pp=pq.per_partner_simulator("0A2CEC84A65760AD90AA751C1C3DD861.csv")
+    pp=pq.per_partner_simulator("C0F515F0A2D0A5D9F854008BA76EB537.csv")
     pp.all_info_about_partner()
     #print("dog")
     #print(pp.test)

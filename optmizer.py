@@ -3,20 +3,21 @@ import partner_data_reader as p
 import random
 import pandas as pd
 
+
 class bank_of_one_dim_UCBs_optimizer:
-    def __init__(self, partner_id, avg_click_cost, NPM):
+    def __init__(self, partner_id):
         self.UCB_factors_for_products = None
         self.partner_id = partner_id
-        self.avg_click_cost = avg_click_cost
-        self.NPM = NPM
+        # self.avg_click_cost = avg_click_cost
+        # self.NPM = NPM
         self.day_by_day_many_partners_data_of_not_exclude_products = []
         self.products_seen_so_far = []
         self.per_product_NPG = {}
 
         self.producsts = set()
         self.UCB_beta = 2.5
-        pk=p.Partner_data_reader(self.partner_id)
-        #self.get_UCB_factors_for_products(pk.next_day(1), self.NPM)
+        pk = p.partner_data_reader(self.partner_id)
+        # self.get_UCB_factors_for_products(pk.next_day(1), self.NPM)
 
     def get_UCB_factors_for_products(self, new_per_product_NPG_factors_statistics, NPM):
         UCB_factors_for_products = {}
@@ -39,15 +40,14 @@ class bank_of_one_dim_UCBs_optimizer:
 
 
 class optimizer:
-    def __init__(self, partner_id, avg_click_cost, NPM):
+    def __init__(self, partner_id):
         self.partner_id = partner_id
-        self.avg_click_cost = avg_click_cost
-        self.NPM = NPM
-        pk=p.Partner_data_reader(self.partner_id)
+        # self.avg_click_cost = avg_click_cost
+        # self.NPM = NPM
+        pk = p.partner_data_reader(self.partner_id)
         self.products = pk.next_day(1)
         self.UCB_beta = 2.5
-        self.bank_of_one_dim_UCBs_optimizer = bank_of_one_dim_UCBs_optimizer(self.partner_id, avg_click_cost, NPM)
-        self.excluded_products=self.__get_excluded_products_pseudorandomly(1.2)
+        #self.bank_of_one_dim_UCBs_optimizer = bank_of_one_dim_UCBs_optimizer(self.partner_id)
 
 
     def __get_excluded_products_by_bank_of_one_dim_UCBs(self):
@@ -59,21 +59,17 @@ class optimizer:
             temp_UCB = temp_UCB_first_part + temp_UCB_second_part
             if temp_UCB < 0 and temp_UCB_second_part > 0:
                 excluded_products.append(product_id)
-
-        print(excluded_products)
         return excluded_products
 
-    def __get_excluded_products_pseudorandomly(self,how_many_ratio):
-        dummy_list_of_potentially_excluded_products=self.products
-        print("cat")
-        print(dummy_list_of_potentially_excluded_products)
+    def get_excluded_products_pseudorandomly(self, date):
+        dummy_list_of_potentially_excluded_products = list(date)
 
-        dummy_how_many_products=round(len(dummy_list_of_potentially_excluded_products)/how_many_ratio)
+        dummy_list_of_potentially_excluded_products.sort()
+
+        #print(len(dummy_list_of_potentially_excluded_products))
+        dummy_how_many_products = round(len(dummy_list_of_potentially_excluded_products) / 20)
+        #print(dummy_how_many_products)
 
         random.seed(12)
-        #excluded_products=dummy_list_of_potentially_excluded_products.sample(random_state=12)
-        excluded_products=random.sample(list(dummy_list_of_potentially_excluded_products),dummy_how_many_products)
-        print("cat")
+        excluded_products = random.sample(dummy_list_of_potentially_excluded_products, dummy_how_many_products)
         return excluded_products
-
-
