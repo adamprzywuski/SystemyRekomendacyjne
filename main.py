@@ -18,7 +18,7 @@ if __name__ == '__main__':
     #print(pk.next_day(1))
     #optimizer=op.optimizer("0A2CEC84A65760AD90AA751C1C3DD861.csv",12.5,2)
     #print(optimizer.excluded_products)
-    pp=pq.per_partner_simulator("04A66CE7327C6E21493DA6F3B9AACC75.csv")
+    pp=pq.per_partner_simulator("C0F515F0A2D0A5D9F854008BA76EB537.csv")
     pp.all_info_about_partner()
     #print("dog")
     #print(pp.test)
