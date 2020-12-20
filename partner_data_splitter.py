@@ -63,7 +63,7 @@ def df_groups_for_partners():
         #print(temp_df['click_timestamp'])
         temp_df['date'] = temp_df['click_timestamp'].apply(lambda x: str(pd.to_datetime(int(x), unit='s').date()))
         temp_df.sort_values(by=['date'],inplace=True)
-        path=r'C:\Users\AdamPrzywuski\PycharmProjects\pythonProject\partners_id_datasets\\'
+        path=r'C:\Users\AdamPrzywuski\PycharmProjects\Systemy\partners_id_datasets\\'
         temp_df.to_csv(path+partner_id+'.csv',sep="\t")
 
     end = time.time()

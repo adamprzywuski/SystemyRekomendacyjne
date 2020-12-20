@@ -45,21 +45,10 @@ class optimizer:
         # self.avg_click_cost = avg_click_cost
         # self.NPM = NPM
         pk = p.partner_data_reader(self.partner_id)
-        self.products = pk.next_day(1)
         self.UCB_beta = 2.5
         #self.bank_of_one_dim_UCBs_optimizer = bank_of_one_dim_UCBs_optimizer(self.partner_id)
 
 
-    def __get_excluded_products_by_bank_of_one_dim_UCBs(self):
-        excluded_products = []
-        for product_id in self.bank_of_one_dim_UCBs_optimizer.UCB_factors_for_products:
-            temp_UCB_first_part = self.bank_of_one_dim_UCBs_optimizer.UCB_factors_for_products[product_id]["mean"]
-            temp_UCB_second_part = self.UCB_beta * \
-                                   self.bank_of_one_dim_UCBs_optimizer.UCB_factors_for_products[product_id]["std"]
-            temp_UCB = temp_UCB_first_part + temp_UCB_second_part
-            if temp_UCB < 0 and temp_UCB_second_part > 0:
-                excluded_products.append(product_id)
-        return excluded_products
 
     def get_excluded_products_pseudorandomly(self, date):
         dummy_list_of_potentially_excluded_products = list(date)
