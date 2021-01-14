@@ -74,6 +74,4 @@ def df_groups_for_partners():
 
 
 
-if __name__ == '__main__':
-    print("dog")
-    df_groups_for_partners()
+

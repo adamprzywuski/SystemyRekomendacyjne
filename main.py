@@ -1,6 +1,7 @@
 # This is a sample Python script.
 import partner_data_reader as p
 import optmizer as op
+import partner_data_splitter as s
 import per_partner_simulator as pq
 
 
@@ -21,8 +22,7 @@ if __name__ == '__main__':
     pp=pq.per_partner_simulator("C0F515F0A2D0A5D9F854008BA76EB537.csv")
     pp.getting_value_of_averge_click_cost()
     pp.all_info_about_partner()
-    #print("dog")
-    #print(pp.test)
+
 
 
 

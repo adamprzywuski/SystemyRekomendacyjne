@@ -1,6 +1,7 @@
 import partner_data_reader as p
 import optmizer as opp
 import json
+import matplotlib.pyplot as plt
 
 
 class per_partner_simulator():
@@ -8,7 +9,8 @@ class per_partner_simulator():
         self.partner_id = partner_id
         self.k = p.partner_data_reader(self.partner_id)
         self.productsToExclude = set()
-        self.productsSeenSoFar = set()
+        self.productsSeenSoFarNextDay = set()
+        self.productsSeenSoFar=set()
         self.productsActuallyExcluded = set()
         self.day = ""
         self.group_info_about_days = []
@@ -17,14 +19,15 @@ class per_partner_simulator():
         self.numbers_of_clicks = 0
         self.per_partner_averge_click_cost = 0
         self.how_many_days = self.k.how_many_dates
+        self.list_of_profit_net=[]
 
     def getting_value_of_averge_click_cost(self):
         for i in range(0, self.how_many_days):
             self._getting_sales_and_click(i)
         self.per_partner_averge_click_cost = (self.sales_amount_in_euro * 0.12) / self.numbers_of_clicks
-        print("For the partnerId= " + self.partner_id + "\n the number of click was " + str(self.numbers_of_clicks)
-              + "\n and the all sales_amount was " + str(self.sales_amount_in_euro) +
-              "\n That means the CPM was " + str(self.per_partner_averge_click_cost))
+        print("For the partnerId = " + self.partner_id + "\nthe number of click was " + str(self.numbers_of_clicks)
+              + "\nand the all sales_amount was " + str(self.sales_amount_in_euro) +
+              "\nThat means the ACC was " + str(self.per_partner_averge_click_cost))
 
     def all_info_about_partner(self):
 
@@ -35,6 +38,7 @@ class per_partner_simulator():
         path = r'C:\Users\AdamPrzywuski\PycharmProjects\Systemy\logs\\'
         with open(path+"log_"+self.partner_id+".json", "w") as outfile:
             json.dump(self.json_score, outfile)
+        self._displaying_graph()
 
 
     def _getting_sales_and_click(self,i):
@@ -45,19 +49,19 @@ class per_partner_simulator():
             money = getattr(rows, "SalesAmountInEuro")
             if sale != -1:
                 self.numbers_of_clicks = self.numbers_of_clicks + 1
-            if money != -1:
+            if money > 0:
                 self.sales_amount_in_euro = self.sales_amount_in_euro + money
 
     def _getting_sales_on_click_per_day(self, i):
         date_in_day = self.k.next_day(i)
-        self.day = date_in_day.iloc[1]["date"]
+        self.day = date_in_day.iloc[0]["date"]
         # here i should json data
         full_day=set()
         for rows in date_in_day.itertuples(index=True):
             # getting data from single days
 
             full_day.add(getattr(rows, "product_id"))
-            self.productsSeenSoFar.add(getattr(rows, "product_id"))
+            #self.productsSeenSoFarNextDay.add(getattr(rows, "product_id"))
 
         # getting the new excluded day
 
@@ -65,7 +69,8 @@ class per_partner_simulator():
         self._getting_daily_per_excluded(date_in_day)
         #self.productsSeenSoFar - self.productsActuallyExcluded
         self._saving_to_json()
-        self.go_to_optimizer(self.productsSeenSoFar)
+        self.productsSeenSoFarNextDay=self.productsSeenSoFarNextDay.union(full_day)
+        self.go_to_optimizer(self.productsSeenSoFarNextDay)
 
     def _first_time(self):
         date_in_day = self.k.next_day(0)
@@ -79,18 +84,13 @@ class per_partner_simulator():
             sale = getattr(rows, "Sale")
             money = getattr(rows, "SalesAmountInEuro")
 
-            self.productsSeenSoFar.add(getattr(rows, "product_id"))
-            if sale != -1:
-                self.numbers_of_clicks = self.numbers_of_clicks + 1
-            if money != -1:
-                self.sales_amount_in_euro = self.sales_amount_in_euro + money
+            self.productsSeenSoFarNextDay.add(getattr(rows, "product_id"))
         # getting the new excluded day
 
-        self.productsActuallyExcluded = self.productsSeenSoFar.intersection(self.productsToExclude)
+        self.productsActuallyExcluded = self.productsSeenSoFarNextDay.intersection(self.productsToExclude)
+        self.productsSeenSoFar=self.productsSeenSoFarNextDay
 
-        #self.productsSeenSoFar - self.productsActuallyExcluded
-
-        self.go_to_optimizer(self.productsSeenSoFar)
+        self.go_to_optimizer(self.productsSeenSoFarNextDay)
 
     def go_to_optimizer(self, list_):
         op = opp.optimizer(self.partner_id)
@@ -101,13 +101,12 @@ class per_partner_simulator():
             {
                 "day": self.day,
                 "productsToExclude": sorted(self.productsToExclude),
-                "productsSeenSoFar": sorted(self.productsSeenSoFar),
+                "productsSeenSoFar": sorted(self.productsSeenSoFarNextDay),
                 "productsActuallyExcluded": sorted(self.productsActuallyExcluded)
             }
         )
 
     def _getting_daily_per_excluded(self,date_in_day):
-        daily_per_excluded_product_net_profit_gain=0
         daily_per_excluded_product_total_number_of_clicks=0
         daily_per_excluded_product_total_salesAmountInEuro=0
         for excluded_products in self.productsActuallyExcluded:
@@ -116,7 +115,7 @@ class per_partner_simulator():
                     sale = getattr(rows, "Sale")
                     money = getattr(rows, "SalesAmountInEuro")
 
-                    self.productsSeenSoFar.add(getattr(rows, "product_id"))
+                    #self.productsSeenSoFarNextDay.add(getattr(rows, "product_id"))
                     if sale != -1:
                         daily_per_excluded_product_total_number_of_clicks = daily_per_excluded_product_total_number_of_clicks + 1
                     if money != -1:
@@ -124,7 +123,14 @@ class per_partner_simulator():
 
         daily_per_excluded_product_net_profit_gain=daily_per_excluded_product_total_number_of_clicks * self.per_partner_averge_click_cost -daily_per_excluded_product_total_salesAmountInEuro * 0.22
         print("The profit day of "+self.day+" was "+ str(daily_per_excluded_product_net_profit_gain))
+        self.list_of_profit_net.append(daily_per_excluded_product_net_profit_gain)
 
+    def _displaying_graph(self):
+        plt.plot(self.list_of_profit_net,label=self.partner_id)
+        plt.title(self.partner_id)
+        plt.ylabel("Euro")
+        plt.xlabel("Day")
+        plt.savefig("graphs\\"+self.partner_id+".pdf")
 
 
 
