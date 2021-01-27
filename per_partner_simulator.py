@@ -20,6 +20,7 @@ class per_partner_simulator():
         self.per_partner_averge_click_cost = 0
         self.how_many_days = self.k.how_many_dates
         self.list_of_profit_net=[]
+        self.list_of_accumulated=[]
 
     def getting_value_of_averge_click_cost(self):
         for i in range(0, self.how_many_days):
@@ -39,6 +40,8 @@ class per_partner_simulator():
         with open(path+"log_"+self.partner_id+".json", "w") as outfile:
             json.dump(self.json_score, outfile)
         self._displaying_graph()
+        self._displaying_accumulated_graph()
+        self._displaying_accumulated_graph_ratio()
 
 
     def _getting_sales_and_click(self,i):
@@ -131,6 +134,35 @@ class per_partner_simulator():
         plt.ylabel("Euro")
         plt.xlabel("Day")
         plt.savefig("graphs\\"+self.partner_id+".pdf")
+        plt.close()
+
+    def _displaying_accumulated_graph(self):
+
+        for n in range(len(self.list_of_profit_net)):
+            i=0
+            for k in range(n):
+                i=i+self.list_of_profit_net[k]
+            self.list_of_accumulated.append(i)
+        plt.ylabel("Accumulated profit gain")
+        plt.xlabel("Day")
+        plt.plot(self.list_of_accumulated, label=self.partner_id+"_accumulated")
+        plt.title(self.partner_id+" Accumulated graph")
+        plt.savefig("graphs_accumulated\\"+self.partner_id+".pdf")
+        plt.close()
+
+    def _displaying_accumulated_graph_ratio(self):
+
+        list=[]
+        for n in range(len(self.list_of_profit_net)):
+            if self.list_of_accumulated[n]!=0:
+                list.append((self.list_of_profit_net[n]/self.list_of_accumulated[n]))
+            else:
+                list.append(0)
+        plt.ylabel("Accumulated profit gain ratio")
+        plt.xlabel("Day")
+        plt.plot(list, label=self.partner_id+"_accumulated_ratio")
+        plt.title(self.partner_id+" Accumulated graph")
+        plt.savefig("graphs_accumulated_ratio\\"+self.partner_id+".pdf")
 
 
 
